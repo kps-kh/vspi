@@ -5,31 +5,108 @@
         Width="400"
         Height="600">
 
-	<ScrollViewer>
-		<Border Padding="20">
-			<StackPanel Spacing="20" HorizontalAlignment="Center">
+    <ScrollViewer>
+        <Border Padding="20">
+            <!-- The main container is centered horizontally -->
+            <StackPanel Spacing="20" HorizontalAlignment="Center">
 
-				<Button x:Name="VolumeUpBtn" Content="Volume+" Click="OnVolumeUpClicked" Width="200"/>
-				<Button x:Name="VolumeDownBtn" Content="Volume-" Click="OnVolumeDownClicked" Width="200"/>
-				<Button x:Name="StopBtn" Content="Stop" Click="OnStopClicked" Width="200"/>
-				<Button x:Name="BlankBtn" Content="Blank" Click="OnBlankClicked" Width="200"/>
+                <!-- Volume Buttons -->
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Button x:Name="VolumeUpBtn"
+                            Content="Volume+"
+                            Click="OnVolumeUpClicked"
+                            Width="100"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"/>
 
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-					<ComboBox x:Name="FirstPicker" Width="200"/>
-					<Button Content="Play" Click="OnExecuteFirstPicker" Width="100"/>
-				</StackPanel>
+                    <Button x:Name="VolumeDownBtn"
+                            Content="Volume-"
+                            Click="OnVolumeDownClicked"
+                            Width="100"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"/>
+                </StackPanel>
 
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-					<ComboBox x:Name="SecondPicker" Width="200"/>
-					<Button Content="Play/Pause" Click="OnExecuteSecondPicker" Width="100"/>
-				</StackPanel>
+                <!-- Pickers and their buttons aligned using a Grid -->
+                <Grid Width="210">
+                    <Grid.ColumnDefinitions>
+                        <!-- Width matches Volume+ button -->
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="10"/>
+                        <!-- Width matches Volume- button -->
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
 
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-					<ComboBox x:Name="ThirdPicker" Width="200"/>
-					<Button Content="Execute" Click="OnExecuteThirdPicker" Width="100"/>
-				</StackPanel>
+                    <!-- First Picker Row -->
+                    <ComboBox x:Name="FirstPicker"
+                              Width="100"
+                              Grid.Column="0"
+                              HorizontalAlignment="Left"/>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5" HorizontalAlignment="Left">
+                        <Button Content="Play"
+                                Width="45"
+                                Click="OnExecuteFirstPicker"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"/>
+                        <Button x:Name="StopBtn"
+                                Content="Stop"
+                                Width="50"
+                                Click="OnStopClicked"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
 
-			</StackPanel>
-		</Border>
-	</ScrollViewer>
+                <Grid Width="210">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Second Picker Row -->
+                    <ComboBox x:Name="SecondPicker"
+                              Width="100"
+                              Grid.Column="0"
+                              HorizontalAlignment="Left"/>
+                    <Button Content="Play/Pause"
+                            Width="100"
+                            Grid.Column="2"
+                            Click="OnExecuteSecondPicker"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"/>
+                </Grid>
+
+                <Grid Width="210">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Third Picker Row -->
+                    <ComboBox x:Name="ThirdPicker"
+                              Width="100"
+                              Grid.Column="0"
+                              HorizontalAlignment="Left"/>
+                    <Button Content="Execute"
+                            Width="100"
+                            Grid.Column="2"
+                            Click="OnExecuteThirdPicker"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"/>
+                </Grid>
+
+                <!-- Blank Button centered under pickers, same width as volume buttons -->
+                <Button x:Name="BlankBtn"
+                        Content="Blank"
+                        Click="OnBlankClicked"
+                        Width="100"
+                        HorizontalAlignment="Center"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"/>
+
+            </StackPanel>
+        </Border>
+    </ScrollViewer>
 </Window>
