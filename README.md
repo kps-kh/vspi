@@ -8,9 +8,13 @@ Welcome to the vspi desktop application project! This is a cross-platform C# des
 
 .NET SDK installed
 
-Raspberry Pi with 64-bit Linux OS sudo apt install playerctl
+Raspberry Pi with 64-bit Linux OS
 
-🛠️ Setup Instructions Open Developer Command Prompt for Visual Studio
+sudo apt install playerctl
+
+🛠️ Setup Instructions
+
+Open Developer Command Prompt for Visual Studio
 
 Go to: Tools → Command Line → Developer Command Prompt
 
@@ -22,13 +26,15 @@ Publish for Raspberry Pi (ARM64)
 
 dotnet publish -r linux-arm64 -c Release --self-contained true
 
-Deploy to Raspberry Pi
+Deploy to Raspberry Pi (in pi terminal)
 
 mkdir vspi
 
 copy content from folder public (on windows pc) into the vspi folder of your pi
 
-cd ~/vspi chmod +x vspi ./vspi
+cd ~/vspi
+chmod +x vspi
+./vspi
 
 🧩 Features Simple GUI with control buttons
 
