@@ -13,9 +13,11 @@ namespace vspi
         {
             InitializeComponent();
 
-            FirstPicker.ItemsSource = new[] { "1live", "xin", "chinese", "remix" };
-            SecondPicker.ItemsSource = new[] { "vlc", "brave" };
-            ThirdPicker.ItemsSource = new[] { "white", "dogs", "BT on", "BT off", "halt", "reboot" };
+            MusicPicker.ItemsSource = new[] { "1live", "xin", "chinese", "remix" };
+            MusicPicker.SelectedIndex = 0;
+            PlayerPicker.ItemsSource = new[] { "brave", "vlc" };
+            PlayerPicker.SelectedIndex = 0;
+            ExecutePicker.ItemsSource = new[] { "white", "dogs", "BT on", "BT off", "halt", "reboot" };
         }
 
         private void RunCommand(string cmd)
@@ -76,21 +78,15 @@ namespace vspi
         private void OnVolumeDownClicked(object? sender, RoutedEventArgs e) =>
             RunCommand("pactl set-sink-volume @DEFAULT_SINK@ -5%");
 
-        private void OnStopClicked(object? sender, RoutedEventArgs e) =>
-            RunCommand("killall -9 vlc");
-
-        private void OnBlankClicked(object? sender, RoutedEventArgs e) =>
-            RunCommand("xscreensaver-command -activate");
-
-        private void OnExecuteFirstPicker(object? sender, RoutedEventArgs e)
+        private void OnMusicPicker(object? sender, RoutedEventArgs e)
         {
-            if (FirstPicker.SelectedIndex == -1)
+            if (MusicPicker.SelectedIndex == -1)
             {
                 ShowMessage("Missing", "Select a music option.");
                 return;
             }
 
-            string? cmd = FirstPicker.SelectedItem?.ToString();
+            string? cmd = MusicPicker.SelectedItem?.ToString();
             string path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
             string? play = cmd switch
@@ -106,15 +102,15 @@ namespace vspi
                 RunCommand(play);
         }
 
-        private void OnExecuteSecondPicker(object? sender, RoutedEventArgs e)
+        private void OnPlayerPicker(object? sender, RoutedEventArgs e)
         {
-            if (SecondPicker.SelectedIndex == -1)
+            if (PlayerPicker.SelectedIndex == -1)
             {
                 ShowMessage("Missing", "Select a player.");
                 return;
             }
 
-            string? cmd = SecondPicker.SelectedItem?.ToString();
+            string? cmd = PlayerPicker.SelectedItem?.ToString();
 
             string? control = cmd switch
             {
@@ -127,16 +123,18 @@ namespace vspi
             if (control != null)
                 RunCommand(control);
         }
+        private void OnStopClicked(object? sender, RoutedEventArgs e) =>
+                RunCommand("killall -9 vlc");
 
-        private void OnExecuteThirdPicker(object? sender, RoutedEventArgs e)
+        private void OnExecutePicker(object? sender, RoutedEventArgs e)
         {
-            if (ThirdPicker.SelectedIndex == -1)
+            if (ExecutePicker.SelectedIndex == -1)
             {
                 ShowMessage("Missing", "Select a command.");
                 return;
             }
 
-            string? cmd = ThirdPicker.SelectedItem?.ToString();
+            string? cmd = ExecutePicker.SelectedItem?.ToString();
             string path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
             string? action = cmd switch
@@ -153,5 +151,14 @@ namespace vspi
             if (action != null)
                 RunCommand(action);
         }
+
+        private void OnXscreenActivateClicked(object? sender, RoutedEventArgs e) =>
+            RunCommand("xscreensaver-command -activate");
+
+        private void OnXscreenDeactivateClicked(object? sender, RoutedEventArgs e) =>
+            RunCommand("xscreensaver-command -deactivate");
+
+        //private void OnBlankClicked(object? sender, RoutedEventArgs e) =>
+        //        RunCommand("xscreensaver-command -activate");
     }
 }
