@@ -51,3 +51,9 @@ Runs natively on ARM64 Raspberry Pi devices
 Avalonia UI
 
 Raspberry Pi 64-bit Linux
+
+android version
+
+https://play.google.com/store/apps/details?id=vspi.vspi
+
+windows version in folder vspi-app_0.0.1.0_windows
