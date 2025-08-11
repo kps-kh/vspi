@@ -22,6 +22,8 @@ Install Avalonia UI Templates
 
 dotnet new install Avalonia.Templates
 
+dotnet workload restore
+
 Publish for Raspberry Pi (ARM64)
 
 dotnet publish -r linux-arm64 -c Release --self-contained true
@@ -30,7 +32,7 @@ Deploy to Raspberry Pi (in pi terminal)
 
 mkdir vspi
 
-copy content from folder public (on windows pc) into the vspi folder of your pi
+copy content from folder publish (on windows pc) into the vspi folder of your pi (C:\Users\dell\source\repos\vspi\bin\Release\net9.0\linux-arm64\publish)
 
 cd ~/vspi
 chmod +x vspi
