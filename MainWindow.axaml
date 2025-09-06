@@ -45,6 +45,18 @@
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
 				</Grid>
 
+				<!-- Xscreen Picker -->
+				<Grid Width="210">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="100"/>
+						<ColumnDefinition Width="10"/>
+						<ColumnDefinition Width="100"/>
+					</Grid.ColumnDefinitions>
+					<ComboBox x:Name="XscreenPicker" Width="100" Grid.Column="0"/>
+					<Button Content="Execute" Width="100" Grid.Column="2" Click="OnXscreenPicker"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+				</Grid>
+
 				<!-- Execute Picker -->
 				<Grid Width="210">
 					<Grid.ColumnDefinitions>
@@ -56,15 +68,6 @@
 					<Button Content="Execute" Width="100" Grid.Column="2" Click="OnExecutePicker"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
 				</Grid>
-
-				<!-- Xscreen Buttons -->
-				<StackPanel Orientation="Horizontal" Spacing="10">
-					<Button x:Name="XscreenActivateBtn" Content="Screen off" Width="100" Click="OnXscreenActivateClicked"
-                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-					<Button x:Name="XscreenDeactivateBtn" Content="Screen on" Width="100" Click="OnXscreenDeactivateClicked"
-                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-				</StackPanel>
-
 			</StackPanel>
 		</Border>
 	</ScrollViewer>

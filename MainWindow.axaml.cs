@@ -17,7 +17,10 @@ namespace vspi
             MusicPicker.SelectedIndex = 0;
             PlayerPicker.ItemsSource = new[] { "brave", "vlc" };
             PlayerPicker.SelectedIndex = 0;
-            ExecutePicker.ItemsSource = new[] { "white", "dogs", "BT on", "BT off", "halt", "reboot" };
+            XscreenPicker.ItemsSource = new[] { "blank", "unblank", "off", "on" };
+            XscreenPicker.SelectedIndex = 0;
+            ExecutePicker.ItemsSource = new[] { "sleep +1", "white", "dogs", "BT on", "BT off", "halt", "reboot" };
+            ExecutePicker.SelectedIndex = 0;
         }
 
         private void RunCommand(string cmd)
@@ -126,6 +129,30 @@ namespace vspi
         private void OnStopClicked(object? sender, RoutedEventArgs e) =>
                 RunCommand("killall -9 vlc");
 
+        private void OnXscreenPicker(object? sender, RoutedEventArgs e)
+        {
+            if (XscreenPicker.SelectedIndex == -1)
+            {
+                ShowMessage("Missing", "Select a command.");
+                return;
+            }
+
+            string? cmd = XscreenPicker.SelectedItem?.ToString();
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+            string? action = cmd switch
+            {
+                "blank" => "pgrep xscreensaver >/dev/null 2>&1 && xscreensaver-command -activate || (nohup xscreensaver -no-splash >/dev/null 2>&1 &)",
+                "unblank" => "xscreensaver-command -deactivate",
+                "off" => "xscreensaver-command -exit",
+                "on" => "nohup xscreensaver -no-splash > /dev/null 2>&1 &",
+                _ => null
+            };
+
+            if (action != null)
+                RunCommand(action);
+        }
+
         private void OnExecutePicker(object? sender, RoutedEventArgs e)
         {
             if (ExecutePicker.SelectedIndex == -1)
@@ -139,6 +166,7 @@ namespace vspi
 
             string? action = cmd switch
             {
+                "sleep +1" => "echo 'killall -9 vlc; playerctl pause; pgrep xscreensaver >/dev/null 2>&1 && xscreensaver-command -activate || (nohup xscreensaver -no-splash >/dev/null 2>&1 &)' | at now + 60 minutes > /dev/null 2>&1",
                 "white" => $"cvlc -LZ {path}/Music/white.mp3",
                 "dogs" => $"cvlc -LZ {path}/Music/2dogs.mp3",
                 "BT on" => "rfkill unblock bluetooth",
@@ -151,14 +179,5 @@ namespace vspi
             if (action != null)
                 RunCommand(action);
         }
-
-        private void OnXscreenActivateClicked(object? sender, RoutedEventArgs e) =>
-            RunCommand("xscreensaver-command -activate");
-
-        private void OnXscreenDeactivateClicked(object? sender, RoutedEventArgs e) =>
-            RunCommand("xscreensaver-command -deactivate");
-
-        //private void OnBlankClicked(object? sender, RoutedEventArgs e) =>
-        //        RunCommand("xscreensaver-command -activate");
     }
 }
