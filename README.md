@@ -28,7 +28,6 @@ Publish for Raspberry Pi (ARM64)
 
 dotnet publish -c Release -r linux-arm64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false
 
-
 Deploy to Raspberry Pi (in pi terminal)
 
 mkdir vspi

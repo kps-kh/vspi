@@ -11,22 +11,29 @@
 
 				<!-- Volume Buttons -->
 				<StackPanel Orientation="Horizontal" Spacing="10">
-					<Button x:Name="VolumeUpBtn" Content="Volume+" Width="100" Click="OnVolumeUpClicked"
+					<Button x:Name="VolumeUpBtn" Content="Volume+" Width="110" Click="OnVolumeUpClicked"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-					<Button x:Name="VolumeDownBtn" Content="Volume-" Width="100" Click="OnVolumeDownClicked"
+					<Button x:Name="VolumeDownBtn" Content="Volume-" Width="110" Click="OnVolumeDownClicked"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
 				</StackPanel>
 
 				<!-- Music Picker -->
-				<Grid Width="210">
+				<Grid Width="230">
 					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="100"/>
+						<ColumnDefinition Width="110"/>
 						<ColumnDefinition Width="10"/>
-						<ColumnDefinition Width="100"/>
+						<ColumnDefinition Width="110"/>
 					</Grid.ColumnDefinitions>
-					<ComboBox x:Name="MusicPicker" Width="100" Grid.Column="0"/>
-					<StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5">
-						<Button Content="Play" Width="45" Click="OnMusicPicker"
+
+					<!-- ComboBox with label above -->
+					<StackPanel Grid.Column="0" Orientation="Vertical">
+						<TextBlock Text="Select music" Margin="0,0,0,2"/>
+						<ComboBox x:Name="MusicPicker" Width="110"/>
+					</StackPanel>
+
+					<!-- Buttons -->
+					<StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
+						<Button Content="Play" Width="50" Click="OnMusicPicker"
                                 HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
 						<Button x:Name="StopBtn" Content="Stop" Width="50" Click="OnStopClicked"
                                 HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
@@ -34,40 +41,56 @@
 				</Grid>
 
 				<!-- Player Picker -->
-				<Grid Width="210">
+				<Grid Width="230">
 					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="100"/>
+						<ColumnDefinition Width="110"/>
 						<ColumnDefinition Width="10"/>
-						<ColumnDefinition Width="100"/>
+						<ColumnDefinition Width="110"/>
 					</Grid.ColumnDefinitions>
-					<ComboBox x:Name="PlayerPicker" Width="100" Grid.Column="0"/>
-					<Button Content="Play / Pause" Width="100" Grid.Column="2" Click="OnPlayerPicker"
+
+					<StackPanel Grid.Column="0" Orientation="Vertical">
+						<TextBlock Text="Select player" Margin="0,0,0,2"/>
+						<ComboBox x:Name="PlayerPicker" Width="110"/>
+					</StackPanel>
+
+					<Button Content="Play / Pause" Width="110" Grid.Column="2" Click="OnPlayerPicker"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
 				</Grid>
 
 				<!-- Xscreen Picker -->
-				<Grid Width="210">
+				<Grid Width="230">
 					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="100"/>
+						<ColumnDefinition Width="110"/>
 						<ColumnDefinition Width="10"/>
-						<ColumnDefinition Width="100"/>
+						<ColumnDefinition Width="110"/>
 					</Grid.ColumnDefinitions>
-					<ComboBox x:Name="XscreenPicker" Width="100" Grid.Column="0"/>
-					<Button Content="Execute" Width="100" Grid.Column="2" Click="OnXscreenPicker"
+
+					<StackPanel Grid.Column="0" Orientation="Vertical">
+						<TextBlock Text="Xscreensaver" Margin="0,0,0,2"/>
+						<ComboBox x:Name="XscreenPicker" Width="110"/>
+					</StackPanel>
+
+					<Button Content="Execute" Width="110" Grid.Column="2" Click="OnXscreenPicker"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
 				</Grid>
 
 				<!-- Execute Picker -->
-				<Grid Width="210">
+				<Grid Width="230">
 					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="100"/>
+						<ColumnDefinition Width="110"/>
 						<ColumnDefinition Width="10"/>
-						<ColumnDefinition Width="100"/>
+						<ColumnDefinition Width="110"/>
 					</Grid.ColumnDefinitions>
-					<ComboBox x:Name="ExecutePicker" Width="100" Grid.Column="0"/>
-					<Button Content="Execute" Width="100" Grid.Column="2" Click="OnExecutePicker"
+
+					<StackPanel Grid.Column="0" Orientation="Vertical">
+						<TextBlock Text="Select command" Margin="0,0,0,2"/>
+						<ComboBox x:Name="ExecutePicker" Width="110"/>
+					</StackPanel>
+
+					<Button Content="Execute" Width="110" Grid.Column="2" Click="OnExecutePicker"
                             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
 				</Grid>
+
 			</StackPanel>
 		</Border>
 	</ScrollViewer>
