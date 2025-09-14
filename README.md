@@ -10,7 +10,7 @@ Welcome to the vspi desktop application project! This is a cross-platform C# des
 
 Raspberry Pi with 64-bit Linux OS
 
-sudo apt install playerctl
+sudo apt install playerctl mpv
 
 🛠️ Setup Instructions
 

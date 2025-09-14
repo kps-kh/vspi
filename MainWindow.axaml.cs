@@ -4,6 +4,8 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using System;
 using System.Diagnostics;
+using System.Net.Sockets;
+using System.Text;
 
 namespace vspi
 {
@@ -15,7 +17,7 @@ namespace vspi
 
             MusicPicker.ItemsSource = new[] { "1live", "xin", "chinese", "remix" };
             MusicPicker.SelectedIndex = 0;
-            PlayerPicker.ItemsSource = new[] { "brave", "vlc" };
+            PlayerPicker.ItemsSource = new[] { "brave", "mpv", "vlc" };
             PlayerPicker.SelectedIndex = 0;
             XscreenPicker.ItemsSource = new[] { "blank", "unblank", "off", "on" };
             XscreenPicker.SelectedIndex = 0;
@@ -42,6 +44,32 @@ namespace vspi
             catch (Exception ex)
             {
                 ShowMessage("Error", ex.Message);
+            }
+        }
+
+        private void SendMpvIpcCommand(string json)
+        {
+            try
+            {
+                using var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
+                var endpoint = new UnixDomainSocketEndPoint("/tmp/mpvsocket");
+                socket.Connect(endpoint);
+
+                var data = Encoding.UTF8.GetBytes(json + "\n");
+                socket.Send(data);
+
+                // Optional: Read response to avoid broken pipe
+                var buffer = new byte[1024];
+                if (socket.Poll(500_000, SelectMode.SelectRead)) // Wait up to 0.5s
+                {
+                    int bytesRead = socket.Receive(buffer);
+                    string response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    Debug.WriteLine("MPV Response: " + response); // For debugging
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowMessage("MPV IPC Error", ex.Message);
             }
         }
 
@@ -94,10 +122,10 @@ namespace vspi
 
             string? play = cmd switch
             {
-                "1live" => $"killall -9 vlc; cvlc -LZ {path}/Music/einslive.xspf",
-                "xin" => $"killall -9 vlc; cvlc --no-video -LZ {path}/Videos/xin",
-                "chinese" => $"killall -9 vlc; cvlc -LZ {path}/Music/chinesetraditional",
-                "remix" => $"killall -9 vlc; cvlc -LZ {path}/Music/remix",
+                "1live" => "killall -9 mpv; mpv --no-video --input-ipc-server=/tmp/mpvsocket https://wdr-1live-live.icecastssl.wdr.de/wdr/1live/live/mp3/128/stream.mp3",
+                "xin" => $"killall -9 mpv; mpv --no-video --loop --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Videos/xin",
+                "chinese" => $"killall -9 mpv; mpv --no-video --loop --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/chinesetraditional",
+                "remix" => $"killall -9 mpv; mpv --no-video --loop --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/remix",
                 _ => null
             };
 
@@ -117,17 +145,24 @@ namespace vspi
 
             string? control = cmd switch
             {
-                // Toggle pause/resume for VLC
-                "vlc" => "dbus-send --type=method_call --dest=org.mpris.MediaPlayer2.vlc /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause",
                 "brave" => "playerctl play-pause -p brave",
+                "mpv" => null, // handled via native socket
+                "vlc" => "dbus-send --type=method_call --dest=org.mpris.MediaPlayer2.vlc /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause",
                 _ => null
             };
 
-            if (control != null)
+            if (cmd == "mpv")
+            {
+                SendMpvIpcCommand("{\"command\": [\"cycle\", \"pause\"], \"request_id\": 1}");
+            }
+            else if (control != null)
+            {
                 RunCommand(control);
+            }
         }
+
         private void OnStopClicked(object? sender, RoutedEventArgs e) =>
-                RunCommand("killall -9 vlc");
+            RunCommand("killall -9 mpv");
 
         private void OnXscreenPicker(object? sender, RoutedEventArgs e)
         {
@@ -166,9 +201,9 @@ namespace vspi
 
             string? action = cmd switch
             {
-                "sleep +1" => "echo 'killall -9 vlc; playerctl pause; pgrep xscreensaver >/dev/null 2>&1 && xscreensaver-command -activate || (nohup xscreensaver -no-splash >/dev/null 2>&1 &)' | at now + 60 minutes > /dev/null 2>&1",
-                "white" => $"cvlc -LZ {path}/Music/white.mp3",
-                "dogs" => $"cvlc -LZ {path}/Music/2dogs.mp3",
+                "sleep +1" => "echo 'killall -9 mpv; playerctl pause; pgrep xscreensaver >/dev/null 2>&1 && xscreensaver-command -activate || (nohup xscreensaver -no-splash >/dev/null 2>&1 &)' | at now + 60 minutes > /dev/null 2>&1",
+                "white" => $"mpv --no-video --loop --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/white.mp3",
+                "dogs" => $"mpv --no-video --loop --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/2dogs.mp3",
                 "BT on" => "rfkill unblock bluetooth",
                 "BT off" => "rfkill block bluetooth",
                 "halt" => "systemctl poweroff",
