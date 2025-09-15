@@ -56,4 +56,4 @@ android version
 
 https://play.google.com/store/apps/details?id=vspi.vspi
 
-windows version in folder vspi-app_0.0.1.0_windows
+windows version in folder vspi-app_x.x.x.x_windows

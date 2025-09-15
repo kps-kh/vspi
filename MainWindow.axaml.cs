@@ -122,10 +122,10 @@ namespace vspi
 
             string? play = cmd switch
             {
-                "1live" => "killall -9 mpv; mpv --no-video --input-ipc-server=/tmp/mpvsocket https://wdr-1live-live.icecastssl.wdr.de/wdr/1live/live/mp3/128/stream.mp3",
-                "xin" => $"killall -9 mpv; mpv --no-video --loop --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Videos/xin",
-                "chinese" => $"killall -9 mpv; mpv --no-video --loop --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/chinesetraditional",
-                "remix" => $"killall -9 mpv; mpv --no-video --loop --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/remix",
+                "1live" => "killall mpv vlc; mpv --no-video --input-ipc-server=/tmp/mpvsocket https://wdr-1live-live.icecastssl.wdr.de/wdr/1live/live/mp3/128/stream.mp3",
+                "xin" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Videos/xin",
+                "chinese" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/chinesetraditional",
+                "remix" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/remix",
                 _ => null
             };
 
@@ -162,7 +162,7 @@ namespace vspi
         }
 
         private void OnStopClicked(object? sender, RoutedEventArgs e) =>
-            RunCommand("killall -9 mpv");
+            RunCommand("killall mpv vlc");
 
         private void OnXscreenPicker(object? sender, RoutedEventArgs e)
         {
@@ -201,9 +201,9 @@ namespace vspi
 
             string? action = cmd switch
             {
-                "sleep +1" => "echo 'killall -9 mpv; playerctl pause; pgrep xscreensaver >/dev/null 2>&1 && xscreensaver-command -activate || (nohup xscreensaver -no-splash >/dev/null 2>&1 &)' | at now + 60 minutes > /dev/null 2>&1",
-                "white" => $"mpv --no-video --loop --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/white.mp3",
-                "dogs" => $"mpv --no-video --loop --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/2dogs.mp3",
+                "sleep +1" => "echo 'killall mpv vlc; playerctl pause; pgrep xscreensaver >/dev/null 2>&1 && xscreensaver-command -activate || (nohup xscreensaver -no-splash >/dev/null 2>&1 &)' | at now + 60 minutes > /dev/null 2>&1",
+                "white" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/white.mp3",
+                "dogs" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/2dogs.mp3",
                 "BT on" => "rfkill unblock bluetooth",
                 "BT off" => "rfkill block bluetooth",
                 "halt" => "systemctl poweroff",
