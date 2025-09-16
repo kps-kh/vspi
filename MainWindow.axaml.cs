@@ -7,212 +7,208 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
 
-namespace vspi
+namespace vspi;
+
+public partial class MainWindow : Window
 {
-    public partial class MainWindow : Window
+    public MainWindow()
     {
-        public MainWindow()
-        {
-            InitializeComponent();
+        InitializeComponent();
 
-            MusicPicker.ItemsSource = new[] { "1live", "xin", "chinese", "remix" };
-            MusicPicker.SelectedIndex = 0;
-            PlayerPicker.ItemsSource = new[] { "brave", "mpv", "vlc" };
-            PlayerPicker.SelectedIndex = 0;
-            XscreenPicker.ItemsSource = new[] { "blank", "unblank", "off", "on" };
-            XscreenPicker.SelectedIndex = 0;
-            ExecutePicker.ItemsSource = new[] { "sleep +1", "white", "dogs", "BT on", "BT off", "halt", "reboot" };
-            ExecutePicker.SelectedIndex = 0;
-        }
+        MusicPicker.ItemsSource = new[] { "1live", "xin", "chinese", "remix" };
+        MusicPicker.SelectedIndex = 0;
 
-        private void RunCommand(string cmd)
+        PlayerPicker.ItemsSource = new[] { "brave", "mpv", "vlc" };
+        PlayerPicker.SelectedIndex = 0;
+
+        XscreenPicker.ItemsSource = new[] { "blank", "unblank", "off", "on" };
+        XscreenPicker.SelectedIndex = 0;
+
+        ExecutePicker.ItemsSource = new[] { "sleep +1", "white", "dogs", "BT on", "BT off", "halt", "reboot" };
+        ExecutePicker.SelectedIndex = 0;
+    }
+
+    void RunCommand(string cmd)
+    {
+        try
         {
-            try
+            var process = new Process
             {
-                var process = new Process
+                StartInfo = new ProcessStartInfo
                 {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "/bin/bash",
-                        Arguments = $"-c \"{cmd}\"",
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
-                };
-                process.Start();
-            }
-            catch (Exception ex)
-            {
-                ShowMessage("Error", ex.Message);
-            }
-        }
-
-        private void SendMpvIpcCommand(string json)
-        {
-            try
-            {
-                using var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
-                var endpoint = new UnixDomainSocketEndPoint("/tmp/mpvsocket");
-                socket.Connect(endpoint);
-
-                var data = Encoding.UTF8.GetBytes(json + "\n");
-                socket.Send(data);
-
-                // Optional: Read response to avoid broken pipe
-                var buffer = new byte[1024];
-                if (socket.Poll(500_000, SelectMode.SelectRead)) // Wait up to 0.5s
-                {
-                    int bytesRead = socket.Receive(buffer);
-                    string response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                    Debug.WriteLine("MPV Response: " + response); // For debugging
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowMessage("MPV IPC Error", ex.Message);
-            }
-        }
-
-        private void ShowMessage(string title, string message)
-        {
-            var okButton = new Button
-            {
-                Content = "OK",
-                Width = 80,
-                Margin = new Thickness(10),
-                HorizontalAlignment = HorizontalAlignment.Center
-            };
-
-            var dialog = new Window
-            {
-                Title = title,
-                Width = 300,
-                Height = 150,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Content = new StackPanel
-                {
-                    Children =
-                    {
-                        new TextBlock { Text = message, Margin = new Thickness(10), TextWrapping = Avalonia.Media.TextWrapping.Wrap },
-                        okButton
-                    }
+                    FileName = "/bin/bash",
+                    Arguments = $"-c \"{cmd}\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true
                 }
             };
+            process.Start();
+        }
+        catch (Exception ex)
+        {
+            ShowMessage("Error", ex.Message);
+        }
+    }
 
-            okButton.Click += (_, __) => dialog.Close();
-            dialog.ShowDialog(this);
+    void SendMpvIpcCommand(string json)
+    {
+        try
+        {
+            using var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
+            socket.Connect(new UnixDomainSocketEndPoint("/tmp/mpvsocket"));
+            socket.Send(Encoding.UTF8.GetBytes(json + "\n"));
+
+            var buffer = new byte[1024];
+            if (socket.Poll(500_000, SelectMode.SelectRead))
+            {
+                int bytesRead = socket.Receive(buffer);
+                Debug.WriteLine("MPV Response: " + Encoding.UTF8.GetString(buffer, 0, bytesRead));
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowMessage("MPV IPC Error", ex.Message);
+        }
+    }
+
+    void ShowMessage(string title, string message)
+    {
+        var okButton = new Button
+        {
+            Content = "OK",
+            Width = 80,
+            Margin = new Thickness(10),
+            HorizontalAlignment = HorizontalAlignment.Center
+        };
+
+        var dialog = new Window
+        {
+            Title = title,
+            Width = 300,
+            Height = 150,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Content = new StackPanel
+            {
+                Children =
+                {
+                    new TextBlock { Text = message, Margin = new Thickness(10), TextWrapping = Avalonia.Media.TextWrapping.Wrap },
+                    okButton
+                }
+            }
+        };
+
+        okButton.Click += (_, __) => dialog.Close();
+        dialog.ShowDialog(this);
+    }
+
+    void OnVolumeUpClicked(object? sender, RoutedEventArgs e) =>
+        RunCommand("pactl set-sink-volume @DEFAULT_SINK@ +5%");
+
+    void OnVolumeDownClicked(object? sender, RoutedEventArgs e) =>
+        RunCommand("pactl set-sink-volume @DEFAULT_SINK@ -5%");
+
+    void OnStopClicked(object? sender, RoutedEventArgs e) =>
+        RunCommand("killall mpv vlc");
+
+    void OnMusicPicker(object? sender, RoutedEventArgs e)
+    {
+        if (MusicPicker.SelectedIndex == -1)
+        {
+            ShowMessage("Missing", "Select a music option.");
+            return;
         }
 
-        private void OnVolumeUpClicked(object? sender, RoutedEventArgs e) =>
-            RunCommand("pactl set-sink-volume @DEFAULT_SINK@ +5%");
+        var cmd = MusicPicker.SelectedItem?.ToString();
+        var path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
-        private void OnVolumeDownClicked(object? sender, RoutedEventArgs e) =>
-            RunCommand("pactl set-sink-volume @DEFAULT_SINK@ -5%");
-
-        private void OnMusicPicker(object? sender, RoutedEventArgs e)
+        var play = cmd switch
         {
-            if (MusicPicker.SelectedIndex == -1)
-            {
-                ShowMessage("Missing", "Select a music option.");
-                return;
-            }
+            "1live" => "killall mpv vlc; mpv --no-video --input-ipc-server=/tmp/mpvsocket https://wdr-1live-live.icecastssl.wdr.de/wdr/1live/live/mp3/128/stream.mp3",
+            "xin" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Videos/xin",
+            "chinese" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/chinesetraditional",
+            "remix" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/remix",
+            _ => null
+        };
 
-            string? cmd = MusicPicker.SelectedItem?.ToString();
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        if (play != null)
+            RunCommand(play);
+    }
 
-            string? play = cmd switch
-            {
-                "1live" => "killall mpv vlc; mpv --no-video --input-ipc-server=/tmp/mpvsocket https://wdr-1live-live.icecastssl.wdr.de/wdr/1live/live/mp3/128/stream.mp3",
-                "xin" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Videos/xin",
-                "chinese" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/chinesetraditional",
-                "remix" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/remix",
-                _ => null
-            };
-
-            if (play != null)
-                RunCommand(play);
+    void OnPlayerPicker(object? sender, RoutedEventArgs e)
+    {
+        if (PlayerPicker.SelectedIndex == -1)
+        {
+            ShowMessage("Missing", "Select a player.");
+            return;
         }
 
-        private void OnPlayerPicker(object? sender, RoutedEventArgs e)
+        var cmd = PlayerPicker.SelectedItem?.ToString();
+
+        if (cmd == "mpv")
         {
-            if (PlayerPicker.SelectedIndex == -1)
-            {
-                ShowMessage("Missing", "Select a player.");
-                return;
-            }
-
-            string? cmd = PlayerPicker.SelectedItem?.ToString();
-
-            string? control = cmd switch
+            SendMpvIpcCommand("{\"command\": [\"cycle\", \"pause\"], \"request_id\": 1}");
+        }
+        else
+        {
+            var control = cmd switch
             {
                 "brave" => "playerctl play-pause -p brave",
-                "mpv" => null, // handled via native socket
                 "vlc" => "dbus-send --type=method_call --dest=org.mpris.MediaPlayer2.vlc /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause",
                 _ => null
             };
 
-            if (cmd == "mpv")
-            {
-                SendMpvIpcCommand("{\"command\": [\"cycle\", \"pause\"], \"request_id\": 1}");
-            }
-            else if (control != null)
-            {
+            if (control != null)
                 RunCommand(control);
-            }
         }
+    }
 
-        private void OnStopClicked(object? sender, RoutedEventArgs e) =>
-            RunCommand("killall mpv vlc");
-
-        private void OnXscreenPicker(object? sender, RoutedEventArgs e)
+    void OnXscreenPicker(object? sender, RoutedEventArgs e)
+    {
+        if (XscreenPicker.SelectedIndex == -1)
         {
-            if (XscreenPicker.SelectedIndex == -1)
-            {
-                ShowMessage("Missing", "Select a command.");
-                return;
-            }
-
-            string? cmd = XscreenPicker.SelectedItem?.ToString();
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-            string? action = cmd switch
-            {
-                "blank" => "pgrep xscreensaver >/dev/null 2>&1 && xscreensaver-command -activate || (nohup xscreensaver -no-splash >/dev/null 2>&1 &)",
-                "unblank" => "xscreensaver-command -deactivate",
-                "off" => "xscreensaver-command -exit",
-                "on" => "nohup xscreensaver -no-splash > /dev/null 2>&1 &",
-                _ => null
-            };
-
-            if (action != null)
-                RunCommand(action);
+            ShowMessage("Missing", "Select a command.");
+            return;
         }
 
-        private void OnExecutePicker(object? sender, RoutedEventArgs e)
+        var cmd = XscreenPicker.SelectedItem?.ToString();
+
+        var action = cmd switch
         {
-            if (ExecutePicker.SelectedIndex == -1)
-            {
-                ShowMessage("Missing", "Select a command.");
-                return;
-            }
+            "blank" => "pgrep xscreensaver >/dev/null 2>&1 && xscreensaver-command -activate || (nohup xscreensaver -no-splash >/dev/null 2>&1 &)",
+            "unblank" => "xscreensaver-command -deactivate",
+            "off" => "xscreensaver-command -exit",
+            "on" => "nohup xscreensaver -no-splash > /dev/null 2>&1 &",
+            _ => null
+        };
 
-            string? cmd = ExecutePicker.SelectedItem?.ToString();
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        if (action != null)
+            RunCommand(action);
+    }
 
-            string? action = cmd switch
-            {
-                "sleep +1" => "echo 'killall mpv vlc; playerctl pause; pgrep xscreensaver >/dev/null 2>&1 && xscreensaver-command -activate || (nohup xscreensaver -no-splash >/dev/null 2>&1 &)' | at now + 60 minutes > /dev/null 2>&1",
-                "white" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/white.mp3",
-                "dogs" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/2dogs.mp3",
-                "BT on" => "rfkill unblock bluetooth",
-                "BT off" => "rfkill block bluetooth",
-                "halt" => "systemctl poweroff",
-                "reboot" => "systemctl reboot",
-                _ => null
-            };
-
-            if (action != null)
-                RunCommand(action);
+    void OnExecutePicker(object? sender, RoutedEventArgs e)
+    {
+        if (ExecutePicker.SelectedIndex == -1)
+        {
+            ShowMessage("Missing", "Select a command.");
+            return;
         }
+
+        var cmd = ExecutePicker.SelectedItem?.ToString();
+        var path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+        var action = cmd switch
+        {
+            "sleep +1" => "echo 'killall mpv vlc; playerctl pause; pgrep xscreensaver >/dev/null 2>&1 && xscreensaver-command -activate || (nohup xscreensaver -no-splash >/dev/null 2>&1 &)' | at now + 60 minutes > /dev/null 2>&1",
+            "white" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/white.mp3",
+            "dogs" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/2dogs.mp3",
+            "BT on" => "rfkill unblock bluetooth",
+            "BT off" => "rfkill block bluetooth",
+            "halt" => "systemctl poweroff",
+            "reboot" => "systemctl reboot",
+            _ => null
+        };
+
+        if (action != null)
+            RunCommand(action);
     }
 }
