@@ -15,7 +15,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        MusicPicker.ItemsSource = new[] { "1live", "xin", "chinese", "remix" };
+        MusicPicker.ItemsSource = new[] { "Playlist", "xin", "chinese", "remix" };
         MusicPicker.SelectedIndex = 0;
 
         PlayerPicker.ItemsSource = new[] { "brave", "mpv", "vlc" };
@@ -123,7 +123,7 @@ public partial class MainWindow : Window
 
         var play = cmd switch
         {
-            "1live" => "killall mpv vlc; mpv --no-video --input-ipc-server=/tmp/mpvsocket https://wdr-1live-live.icecastssl.wdr.de/wdr/1live/live/mp3/128/stream.mp3",
+            "Playlist" => $"killall mpv vlc; mpv --playlist={path}/Music/playlist.m3u --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket",
             "xin" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Videos/xin",
             "chinese" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/chinesetraditional",
             "remix" => $"killall mpv vlc; mpv --no-video --loop-playlist=inf --shuffle --input-ipc-server=/tmp/mpvsocket {path}/Music/remix",
