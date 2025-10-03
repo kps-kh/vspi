@@ -174,7 +174,7 @@ public partial class MainWindow : Window
 
         var action = cmd switch
         {
-            "blank" => "pgrep xscreensaver >/dev/null 2>&1 && xscreensaver-command -activate || (nohup xscreensaver -no-splash >/dev/null 2>&1 &)",
+            "blank" => "nohup xscreensaver -no-splash >/dev/null 2>&1 & sleep 1.5; xscreensaver-command -activate",
             "unblank" => "xscreensaver-command -deactivate",
             "off" => "xscreensaver-command -exit",
             "on" => "nohup xscreensaver -no-splash > /dev/null 2>&1 &",
